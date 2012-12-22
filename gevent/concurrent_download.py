@@ -3,22 +3,29 @@
 
 """Spawn multiple workers and wait for them to complete"""
 
-urls = ['http://www.google.com', 'http://www.yandex.ru', 'http://www.python.org']
 
 import gevent
 from gevent import monkey
+import sys
+import datetime
+
 
 # patches stdlib (including socket and ssl modules) to cooperate with other greenlets
 monkey.patch_all()
 
 import urllib2
 
-
 def print_head(url):
-    print ('Starting %s' % url)
-    data = urllib2.urlopen(url).read()
-    print ('%s: %s bytes: %r' % (url, len(data), data[:50]))
+	print ('Starting %s' % url)
+	data = urllib2.urlopen(url).read()
+	print ('%s: %s bytes' % (url, len(data)))
 
-jobs = [gevent.spawn(print_head, url) for url in urls]
+def main():	
+	start_time = datetime.datetime.now()
+	jobs = [gevent.spawn(print_head, url) for url in sys.argv[1:]]
+	gevent.joinall(jobs)
+	end_time = datetime.datetime.now()
+	print("Running time is %s"%(str(end_time - start_time)))
 
-gevent.wait(jobs)
+if __name__ == '__main__':
+	main()
