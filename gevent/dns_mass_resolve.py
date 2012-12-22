@@ -14,28 +14,34 @@ import sys
 import gevent
 from gevent import socket
 from gevent.pool import Pool
+import datetime
 
 N = 1000
 # limit ourselves to max 10 simultaneous outstanding requests
-pool = Pool(10)
+pool = Pool(100)
 finished = 0
+success = 0
 
 
 def job(url):
-    global finished
-    try:
-        try:
-            ip = socket.gethostbyname(url)
-            print ('%s = %s' % (url, ip))
-        except socket.gaierror:
-            ex = sys.exc_info()[1]
-            print ('%s failed with %s' % (url, ex))
-    finally:
-        finished += 1
+	global finished
+	global success
+	try:
+		try:
+			ip = socket.gethostbyname(url)
+			print ('%s = %s' % (url, ip))
+			success += 1
+		except socket.gaierror:
+			ex = sys.exc_info()[1]
+			print ('%s failed with %s' % (url, ex))
+	finally:
+		finished += 1
 
-with gevent.Timeout(2, False):
+start_time = datetime.datetime.now()
+with gevent.Timeout(100, False):
     for x in xrange(10, 10 + N):
         pool.spawn(job, '%s.com' % x)
     pool.join()
 
-print ('finished within 2 seconds: %s/%s' % (finished, N))
+end_time = datetime.datetime.now()
+print ('finished within 100 seconds: %s(%s)/%s time %s' % (finished, success,N,str(end_time-start_time)))
