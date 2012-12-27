@@ -124,4 +124,4 @@ FORM = """<html><head>
 if __name__ == '__main__':
     from gevent.pywsgi import WSGIServer
     print 'Serving on %s...' % LISTEN
-    WSGIServer(LISTEN, application).serve_forever()
+    WSGIServer(("0.0.0.0",8080), application).serve_forever()
