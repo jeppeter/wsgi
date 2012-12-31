@@ -71,14 +71,15 @@ def main():
     args = sys.argv[1:]
     if len(args) != 2:
         sys.exit('Usage: %s source-address destination-address' % __file__)
-    source = args[0]
+    source = parse_address(args[0])
     dest = parse_address(args[1])
+    log('Starting port forwarder %s -> %s', str(source),str(dest))
     server = PortForwarder(source, dest)
     log('Starting port forwarder %s:%s -> %s:%s', *(server.address[:2] + dest))
     gevent.signal(signal.SIGTERM, server.close)
     gevent.signal(signal.SIGINT, server.close)
-    server.start()
-    gevent.wait()
+    server.serve_forever()
+    #gevent.joinall([server])
 
 
 def log(message, *args):

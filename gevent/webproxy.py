@@ -68,7 +68,7 @@ def proxy(path, start_response, proxy_url):
     else:
         start_response('%s %s' % (response.code, response.msg), headers)
         data = response.read()
-        data = fix_links(data, proxy_url, host)
+        #data = fix_links(data, proxy_url, host)
         return [data]
 
 
