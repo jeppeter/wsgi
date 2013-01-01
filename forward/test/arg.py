@@ -11,6 +11,7 @@ def Usage(excode=0):
     sys.exit(excode)
 def CallBackOpt(option,opt,value,parser):
     setattr(parser.values,option.dest,value)
+    sys.stderr.write("option (%s) opt (%s) value (%s)\n"%(str(option),str(opt),str(value)))
     return
 
 par = OptionParser()
