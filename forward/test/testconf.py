@@ -1,19 +1,12 @@
 #! python
 
-import ConfigParser
+from ConfigParser import ConfigParser
 import sys
-class BaseConfig(ConfigParser.ConfigParser):
-	def __init__(self,file):
-		try:
-			super.__init__(self)
-			sys.stderr.write("File "+file)
-			super.read(file)
-		except:
-			raise IOError("can not parse %s"%(file))
 
 def CallOption(file):
 	try:
-		bc = BaseConfig(file)
+		bc = ConfigParser()
+		bc.read(file)
 		secs = bc.sections()
 		for s in secs:
 			opts = bc.options(s)
