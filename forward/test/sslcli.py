@@ -3,7 +3,9 @@
 import gevent
 from gevent import monkey
 from gevent import socket,ssl
+from gevent.server import StreamServer
 import traceback
+import sys
 # patches stdlib (including socket and ssl modules) to cooperate with other greenlets
 monkey.patch_all()
 
@@ -37,4 +39,20 @@ def CliSSL(gsock,paddr):
 	gevent.join(chld)
 	return 0
 
+def parse_ipport(str):
+	host,port = str.split(":")
+	if not host or \
+		not port or \
+		len(host) == 0 or \
+		len(port) == 0 :
+		sys.stderr.write("%s not valid for host:port\n"%(str))
+		sys.exit(3)
+	return host,port
 
+if __name__ == '__main__':
+	if len(sys.argv) < 3:
+		sys.stderr.write("%s local:port remote:port"%(__file__))
+		sys.exit(3)
+	source=parse_ipport(sys.argv[1])
+	dest = parse_ipport(sys.argv[2])
+	sys.stdout.write("source %s dest %s\n"%(repr(source),repr(dest)))
