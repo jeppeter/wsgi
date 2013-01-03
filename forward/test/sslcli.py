@@ -56,3 +56,4 @@ if __name__ == '__main__':
 	source=parse_ipport(sys.argv[1])
 	dest = parse_ipport(sys.argv[2])
 	sys.stdout.write("source %s dest %s\n"%(repr(source),repr(dest)))
+	gserver = StreamServer()
