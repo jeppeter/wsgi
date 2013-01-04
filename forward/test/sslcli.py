@@ -56,4 +56,17 @@ if __name__ == '__main__':
 	source=parse_ipport(sys.argv[1])
 	dest = parse_ipport(sys.argv[2])
 	sys.stdout.write("source %s dest %s\n"%(repr(source),repr(dest)))
-	gserver = StreamServer()
+	try:
+		ssock = socket.tcp_listener(source)
+	except:
+		sys.stderr.write("listen %s error\n"%(source))
+		sys.exit(3)
+	while True:
+		try:
+			csock,paddr = ssock.accept()
+			gevent.spawn(CliSSL,(csock,dest))
+		except:
+			sys.stderr.write("accept error %s\n"%(sys.exp_info()[0]))
+			pass
+	ssock.close()
+	sys.stderr.write("Exit\n")
