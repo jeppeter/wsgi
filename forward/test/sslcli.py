@@ -20,9 +20,10 @@ def CliRemoteRead(sslsock,gsock):
 			break
 	return 0
 
-def CliSSL(gsock,paddr):
+def CliSSL(gsock,ip,port):
 	try:
-		rsock = socket.create_connection(paddr)
+		sys.stderr.write("try to connect %s:%s\n"%(repr(ip),repr(port)))
+		rsock = socket.create_connection(ip,port)
 		rsslsock = ssl.SSLSocket(rsock)
 	except:
 		gsock.shutdown()
@@ -47,7 +48,7 @@ def parse_ipport(str):
 		len(port) == 0 :
 		sys.stderr.write("%s not valid for host:port\n"%(str))
 		sys.exit(3)
-	return host,port
+	return host,int(port)
 
 if __name__ == '__main__':
 	if len(sys.argv) < 3:
@@ -58,15 +59,19 @@ if __name__ == '__main__':
 	sys.stdout.write("source %s dest %s\n"%(repr(source),repr(dest)))
 	try:
 		ssock = socket.tcp_listener(source)
+		sys.stderr.write("Listen on %s\n"%(repr(source)))
 	except:
-		sys.stderr.write("listen %s error\n"%(source))
+		sys.stderr.write("listen %s error %s\n"%(repr(source),sys.exc_info()))
 		sys.exit(3)
 	while True:
 		try:
 			csock,paddr = ssock.accept()
-			gevent.spawn(CliSSL,(csock,dest))
-		except:
-			sys.stderr.write("accept error %s\n"%(sys.exp_info()[0]))
+			gevent.spawn(CliSSL,csock,dest[0],dest[1])
+		except KeyboardInterrupt as e:
+			sys.stderr.write("User Interrupt\n")
+			break
+		except :
+			sys.stderr.write("accept error %s %s\n"%(sys.exc_info(),repr(e)))
 			pass
 	ssock.close()
 	sys.stderr.write("Exit\n")
