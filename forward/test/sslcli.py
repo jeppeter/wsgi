@@ -75,6 +75,7 @@ if __name__ == '__main__':
 			sys.stderr.write("User Interrupt\n")
 			break
 		except :
+			csock.shutdown()
 			sys.stderr.write("accept error %s %s\n"%(sys.exc_info(),repr(e)))
 			pass
 	ssock.close()
