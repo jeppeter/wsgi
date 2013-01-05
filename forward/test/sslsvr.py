@@ -8,18 +8,21 @@ monkey.patch_all()
 from gevent import socket,ssl
 import sys
 
-def EchoServer(gsock):
-	rsslsock = ssl.SSLSocket(gsock)
+def EchoServer(gsock,paddr):
+	rsslsock = ssl.wrap_socket(gsock,server_side=True,certfile="cert",keyfile="key",ssl_version=ssl.PROTOCOL_SSLv23)
+	count = 0
 	while True:
 		try:
 			data = rsslsock.recv(1024)
 			if not data or len(data)==0:
 				break
 			rsslsock.send(data)
+			count += len(data)
 		except:
 			sys.stderr.write("in sock %s error %s"%(repr(gsock),sys.exc_info()))
 			break
-	gsock.shutdown()
+	gsock.close()
+	sys.stderr.write("client %s closed send (%d)bytes\n"%(repr(paddr),count))
 	return 0
 
 def parse_ipport(str):
@@ -46,7 +49,7 @@ if __name__ == '__main__':
 	while True:
 		try:
 			csock,paddr = ssock.accept()
-			gevent.spawn(EchoServer,csock)
+			gevent.spawn(EchoServer,csock,paddr)
 		except KeyboardInterrupt as e:
 			sys.stderr.write("User Interrupt\n")
 			break

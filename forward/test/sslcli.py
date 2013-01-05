@@ -25,7 +25,8 @@ def CliSSL(gsock,paddr):
 		sys.stderr.write("try to connect %s\n"%(repr(paddr)))
 		rsock = socket.create_connection(paddr)
 		sys.stderr.write("try connect %s succ\n"%(repr(paddr)))
-		rsslsock = ssl.SSLSocket(rsock)
+		rsslsock = ssl(rsock)
+		sys.stderr.write("log ssl %s succ\n"%(repr(paddr)))
 	except:
 		sys.stderr.write("except %s\n"%(sys.exc_info()))
 		gsock.shutdown()
@@ -40,8 +41,8 @@ def CliSSL(gsock,paddr):
 		except:
 			break
 	gevent.join(chld)
-	gsock.shutdown()
-	rsslsock.shutdown()
+	gsock.close()
+	rsslsock.close()
 	return 0
 
 def parse_ipport(str):
