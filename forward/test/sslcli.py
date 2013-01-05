@@ -16,28 +16,28 @@ def CliRemoteRead(sslsock,gsock):
 			if not data or len(data)==0 :
 				break
 			gsock.send(data)
+			sys.stderr.write("ssl read data %s (%d)\n"%(data,len(data)))
 		except:
 			break
 	return 0
 
 def CliSSL(gsock,paddr):
 	try:
-		sys.stderr.write("try to connect %s\n"%(repr(paddr)))
 		rsock = socket.create_connection(paddr)
-		sys.stderr.write("try connect %s succ\n"%(repr(paddr)))
-		rsslsock = ssl(rsock)
+		rsslsock = ssl.wrap_socket(rsock)
 		sys.stderr.write("log ssl %s succ\n"%(repr(paddr)))
 	except:
 		sys.stderr.write("except %s\n"%(sys.exc_info()))
 		gsock.shutdown()
 		return -1
-	chld = gevent.spawn(CliRemoteRead,(rsslsock,gsock,))
+	chld = gevent.spawn(CliRemoteRead,rsslsock,gsock)
 	while True:
 		try:
 			data = gsock.recv(1024)
 			if not data or len(data) == 0 :
 				break
 			rsslsock.send(data)
+			sys.stderr.write("ssl read data %s (%d)\n"%(data,len(data)))
 		except:
 			break
 	gevent.join(chld)
